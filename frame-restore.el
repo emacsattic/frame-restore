@@ -49,7 +49,7 @@
   :group 'frame-restore)
 
 (defcustom frame-restore-parameters
-  '(left top width height maximized fullscreen)
+  '(left top width height maximized fullscreen alpha)
   "Frame parameters to save and restore.
 
 See Info node `(elisp)Frame Parameters' for information about
