@@ -6,7 +6,7 @@
 ;; URL: https://github.com/lunaryorn/frame-restore.el
 ;; Keywords:  frames convenience
 ;; Version: 0.3-cvs
-;; Package-Requires: ((dash "1.2") (emacs "24.1"))
+;; Package-Requires: ((dash "1.2") (f "0.4.1") (emacs "24.1"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -43,6 +43,7 @@
 ;;; Code:
 
 (require 'dash)
+(require 'f)
 
 
 ;;;; Customization
@@ -109,13 +110,6 @@ is saved from one session to another."
 
 ;;;; Save and restore of frame
 
-(defun frame-restore--write-parameters (params)
-  "Write PARAMS to `frame-restore-parameters-file'."
-  (with-temp-file frame-restore-parameters-file
-    (prin1 (--filter (memq (car it) frame-restore-parameters) params)
-           (current-buffer))
-    (terpri (current-buffer))))
-
 (defun frame-restore-save-parameters ()
   "Save frame parameters of the currently selected frame.
 
@@ -124,24 +118,21 @@ Save parameters in `frame-restore-parameters' to
 
 Return t, if the parameters were saved, or nil otherwise."
   (condition-case nil
-      (when (display-graphic-p) ; GUI frames only!
-        (frame-restore--write-parameters (frame-parameters))
+      (when (display-graphic-p)         ; GUI frames only!
+        (let ((print-level nil)
+              (print-length nil))
+          (->> (frame-parameters)
+            (--filter (memq (car it) frame-restore-parameters))
+            prin1-to-string
+            (f-write frame-restore-parameters-file)))
         t)
     (file-error nil)))
 
 (defun frame-restore--add-alists (a b)
-  "Add alist A to B and return the result.
+  "Add alist B to A and return the result.
 
 Remove duplicate keys."
-  (append a (--remove (assq (car it) a) b) nil))
-
-(defun frame-restore--read-parameters ()
-  "Read parameters from `frame-restore-parameters-file'."
-  (with-temp-buffer
-    (insert-file-contents frame-restore-parameters-file)
-    (goto-char (point-min))
-    (-when-let (params (read (current-buffer)))
-      (--filter (memq (car it) frame-restore-parameters) params))))
+  (append b (--remove (assq (car it) b) a) nil))
 
 (defun frame-restore-desktop-restores-frame-p ()
   "Whether or not Deskop Save mode will restore frames."
@@ -163,9 +154,11 @@ Return the new `initial-frame-alist', or nil if reading failed."
              ;; Don't mess up with Desktop Save mode
              (not (frame-restore-desktop-restores-frame-p)))
     (condition-case nil
-        (-when-let* ((params (frame-restore--read-parameters)))
-          (setq initial-frame-alist
-                (frame-restore--add-alists params initial-frame-alist)))
+        (setq initial-frame-alist
+              (->> (f-read frame-restore-parameters-file)
+                read
+                (--filter (memq (car it) frame-restore-parameters))
+                (frame-restore--add-alists initial-frame-alist)))
       (error nil))))
 
 ;; Add our hooks
