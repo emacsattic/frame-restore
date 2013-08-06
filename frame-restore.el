@@ -35,6 +35,9 @@
 
 (require 'dash)
 
+
+;;;; Customization
+
 (defgroup frame-restore nil
   "Save and restore frame parameters."
   :group 'frames
@@ -63,6 +66,29 @@ frame parameters."
 If t, restore the frame, otherwise don't."
   :type 'boolean
   :group 'frame-restore)
+
+
+
+;;;; Mode definition
+
+;;;###autoload
+(define-minor-mode frame-restore-mode
+  "Toggle Frame Restore Mode.
+
+With a prefix argument ARG, enable Frame Restore mode if ARG is
+positive, and disable it otherwise.  If called from Lisp, enable
+the mode if ARG is omitted or nil.
+
+If Frame Restore mode is enabled, the state of the initial frame
+is saved from one session to another."
+  :global t
+  :group 'frame-restore)
+
+;;;###autoload
+(define-obsolete-function-alias 'frame-restore 'frame-restore-mode "0.2")
+
+
+;;;; Save and restore of frame
 
 (defun frame-restore--write-parameters (params)
   "Write PARAMS to `frame-restore-parameters-file'."
@@ -101,24 +127,25 @@ Remove duplicate keys."
 (defun frame-restore-initial-frame ()
   "Restore the frame parameters of the initial frame.
 
-Load parameters in `frame-restore-parameters' from
-`frame-restore-parameters-file' and update `initial-frame-alist'
-accordingly.
+If Frame Restore mode is enabled, load parameters in
+`frame-restore-parameters' from `frame-restore-parameters-file'
+and update `initial-frame-alist' accordingly.
+
+Do nothing if Frame Restore mode is disabled, as by variable
+`frame-restore-mode'.
 
 Return the new `initial-frame-alist', or nil if reading failed."
-  (condition-case nil
-      (-when-let* ((params (frame-restore--read-parameters)))
-        (setq initial-frame-alist
-              (frame-restore--add-alists params initial-frame-alist)))
-    (error nil)))
+  (when frame-restore-mode
+    (condition-case nil
+        (-when-let* ((params (frame-restore--read-parameters)))
+          (setq initial-frame-alist
+                (frame-restore--add-alists params initial-frame-alist)))
+      (error nil))))
 
-;;;###autoload
-(defun frame-restore ()
-  "Save and restore parameters of the Emacs frame."
-  (unless noninteractive                ; Skip noninteractive sessions
-    (add-hook 'kill-emacs-hook #'frame-restore-save-parameters)
-    (when frame-restore-initial-frame
-      (add-hook 'after-init-hook #'frame-restore-initial-frame))))
+;; Add our hooks
+(unless noninteractive
+  (add-hook 'kill-emacs-hook #'frame-restore-save-parameters)
+  (add-hook 'after-init-hook #'frame-restore-initial-frame))
 
 (provide 'frame-restore)
 
