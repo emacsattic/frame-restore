@@ -10,7 +10,7 @@ Install the ELPA package from [MELPA][] or [Marmalade][] with `M-x
 package-install RET frame-restore`, and add the following to your `init.el`:
 
 ```scheme
-(frame-restore)
+(frame-restore-mode)
 ```
 
 Customization
