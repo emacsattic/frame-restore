@@ -134,6 +134,11 @@ Remove duplicate keys."
     (-when-let (params (read (current-buffer)))
       (--filter (memq (car it) frame-restore-parameters) params))))
 
+(defun frame-restore-desktop-restores-frame-p ()
+  "Whether or not Deskop Save mode will restore frames."
+  (and (bound-and-true-p 'desktop-save-mode)
+       (bound-and-true-p 'desktop-restore-frames)))
+
 (defun frame-restore-initial-frame ()
   "Restore the frame parameters of the initial frame.
 
@@ -145,18 +150,14 @@ Do nothing if Frame Restore mode is disabled, as by variable
 `frame-restore-mode'.
 
 Return the new `initial-frame-alist', or nil if reading failed."
-  (when frame-restore-mode
-    (if (and(bound-and-true-p 'desktop-save-mode)
-            (bound-and-true-p 'desktop-restore-frames))
-        ;; We must not mess up with Desktop Save mode.  If it's setup to restore
-        ;; frames, we warn the user about this conflict, and let Desktop Save
-        ;; mode to its work
-        (warn "Frame Restore is incompatible with Desktop Save mode frame restoring.")
-      (condition-case nil
-          (-when-let* ((params (frame-restore--read-parameters)))
-            (setq initial-frame-alist
-                  (frame-restore--add-alists params initial-frame-alist)))
-        (error nil)))))
+  (when (and frame-restore-mode
+             ;; Don't mess up with Desktop Save mode
+             (not (frame-restore-desktop-restores-frame-p)))
+    (condition-case nil
+        (-when-let* ((params (frame-restore--read-parameters)))
+          (setq initial-frame-alist
+                (frame-restore--add-alists params initial-frame-alist)))
+      (error nil))))
 
 ;; Add our hooks
 (unless noninteractive
