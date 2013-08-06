@@ -71,6 +71,11 @@ If t, restore the frame, otherwise don't."
 
 ;;;; Mode definition
 
+(defun frame-restore-desktop-can-save-frames ()
+  "Whether `desktop-save-mode' can save and restore frames."
+  (and (require 'desktop nil :no-error)
+       (boundp 'desktop-restore-frames)))
+
 ;;;###autoload
 (define-minor-mode frame-restore-mode
   "Toggle Frame Restore Mode.
@@ -82,7 +87,12 @@ the mode if ARG is omitted or nil.
 If Frame Restore mode is enabled, the state of the initial frame
 is saved from one session to another."
   :global t
-  :group 'frame-restore)
+  :group 'frame-restore
+  (when (and frame-restore-mode
+             (frame-restore-desktop-can-save-frames))
+    ;; Recent Desktop Save Mode can restore frames, too, in a much superior way,
+    ;; so we should advice our users to use Desktop Save Mode instead.
+    (warn "Frame restore is obsolete. Use `desktop-save-mode' instead")))
 
 ;;;###autoload
 (define-obsolete-function-alias 'frame-restore 'frame-restore-mode "0.2")
@@ -136,11 +146,17 @@ Do nothing if Frame Restore mode is disabled, as by variable
 
 Return the new `initial-frame-alist', or nil if reading failed."
   (when frame-restore-mode
-    (condition-case nil
-        (-when-let* ((params (frame-restore--read-parameters)))
-          (setq initial-frame-alist
-                (frame-restore--add-alists params initial-frame-alist)))
-      (error nil))))
+    (if (and(bound-and-true-p 'desktop-save-mode)
+            (bound-and-true-p 'desktop-restore-frames))
+        ;; We must not mess up with Desktop Save mode.  If it's setup to restore
+        ;; frames, we warn the user about this conflict, and let Desktop Save
+        ;; mode to its work
+        (warn "Frame Restore is incompatible with Desktop Save mode frame restoring.")
+      (condition-case nil
+          (-when-let* ((params (frame-restore--read-parameters)))
+            (setq initial-frame-alist
+                  (frame-restore--add-alists params initial-frame-alist)))
+        (error nil)))))
 
 ;; Add our hooks
 (unless noninteractive
