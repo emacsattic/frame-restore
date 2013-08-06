@@ -1,6 +1,7 @@
 EMACS ?= emacs
 EMACSFLAGS =
-CARTON = carton
+CASK = cask
+PKGDIR := $(shell EMACS=$(EMACS) $(CASK) package-directory)
 
 # Export Emacs to recipes
 export EMACS
@@ -12,18 +13,18 @@ OBJECTS = $(SRCS:.el=.elc)
 compile : $(OBJECTS)
 
 .PHONY: clean-all
-clean-all : clean clean-elpa
+clean-all : clean clean-pkgdir
 
 .PHONY: clean
 clean :
 	rm -f $(OBJECTS)
 
-.PHONY: clean-elpa
-clean-elpa:
-	rm -rf elpa
+.PHONY: clean-pkgdir
+clean-pkgdir:
+	rm -rf $(PKGDIR)
 
-%.elc : %.el elpa
-	$(CARTON) exec $(EMACS) -Q --batch $(EMACSFLAGS) -f batch-byte-compile $<
+%.elc : %.el $(PKGDIR)
+	$(CASK) exec $(EMACS) -Q --batch $(EMACSFLAGS) -f batch-byte-compile $<
 
-elpa : Carton
-	$(CARTON) install
+$(PKGDIR) : Cask
+	$(CASK) install
