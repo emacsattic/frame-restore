@@ -5,7 +5,7 @@
 ;; Author: Sebastian Wiesner <lunaryorn@gmail.com>
 ;; URL: https://github.com/lunaryorn/frame-restore.el
 ;; Keywords:  frames convenience
-;; Version: 0.3-cvs
+;; Version: 0.3
 ;; Package-Requires: ((dash "1.2") (f "0.4.1") (emacs "24.1"))
 
 ;; This file is not part of GNU Emacs.
