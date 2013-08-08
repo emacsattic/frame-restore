@@ -136,8 +136,8 @@ Remove duplicate keys."
 
 (defun frame-restore-desktop-restores-frame-p ()
   "Whether or not Deskop Save mode will restore frames."
-  (and (bound-and-true-p 'desktop-save-mode)
-       (bound-and-true-p 'desktop-restore-frames)))
+  (and (bound-and-true-p desktop-save-mode)
+       (bound-and-true-p desktop-restore-frames)))
 
 (defun frame-restore-initial-frame ()
   "Restore the frame parameters of the initial frame.
