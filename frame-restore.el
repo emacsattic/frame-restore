@@ -45,9 +45,7 @@
 (require 'dash)
 (require 'f)
 
-
 ;;;; Customization
-
 (defgroup frame-restore nil
   "Save and restore frame parameters."
   :group 'frames
@@ -76,11 +74,8 @@ frame parameters."
 If t, restore the frame, otherwise don't."
   :type 'boolean
   :group 'frame-restore)
-
-
 
 ;;;; Mode definition
-
 (defun frame-restore-desktop-can-save-frames ()
   "Whether `desktop-save-mode' can save and restore frames."
   (and (require 'desktop nil :no-error)
@@ -107,9 +102,7 @@ is saved from one session to another."
 ;;;###autoload
 (define-obsolete-function-alias 'frame-restore 'frame-restore-mode "0.2")
 
-
 ;;;; Save and restore of frame
-
 (defun frame-restore-save-parameters ()
   "Save frame parameters of the currently selected frame.
 
