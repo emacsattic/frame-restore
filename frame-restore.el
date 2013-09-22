@@ -6,7 +6,7 @@
 ;; URL: https://github.com/lunaryorn/frame-restore.el
 ;; Keywords:  frames convenience
 ;; Version: 0.4-cvs
-;; Package-Requires: ((dash "1.2") (f "0.4.1") (emacs "24.1"))
+;; Package-Requires: ((dash "1.2") (f "0.11") (emacs "24.1"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -114,10 +114,12 @@ Return t, if the parameters were saved, or nil otherwise."
       (when (display-graphic-p)         ; GUI frames only!
         (let ((print-level nil)
               (print-length nil))
-          (->> (frame-parameters)
-            (--filter (memq (car it) frame-restore-parameters))
-            prin1-to-string
-            (f-write frame-restore-parameters-file)))
+          (f-write-text
+           (->> (frame-parameters)
+             (--filter (memq (car it) frame-restore-parameters))
+             prin1-to-string)
+           'utf-8
+           frame-restore-parameters-file))
         t)
     (file-error nil)))
 
@@ -148,7 +150,7 @@ Return the new `initial-frame-alist', or nil if reading failed."
              (not (frame-restore-desktop-restores-frame-p)))
     (condition-case nil
         (setq initial-frame-alist
-              (->> (f-read frame-restore-parameters-file)
+              (->> (f-read-text frame-restore-parameters-file 'utf-8)
                 read
                 (--filter (memq (car it) frame-restore-parameters))
                 (frame-restore--add-alists initial-frame-alist)))
