@@ -113,21 +113,15 @@ Return t, if the parameters were saved, or nil otherwise."
   (condition-case nil
       (when (display-graphic-p)         ; GUI frames only!
         (let ((print-level nil)
-              (print-length nil))
-          (f-write-text
-           (->> (frame-parameters)
-             (--filter (memq (car it) frame-restore-parameters))
-             prin1-to-string)
-           'utf-8
-           frame-restore-parameters-file))
+              (print-length nil)
+              params-to-save)
+          (dolist (param (frame-parameters))
+            (when (memq (car param) frame-restore-parameters)
+              (push param params-to-save)))
+          (with-temp-file frame-restore-parameters-file
+            (prin1 params-to-save (current-buffer))))
         t)
     (file-error nil)))
-
-(defun frame-restore--add-alists (a b)
-  "Add alist B to A and return the result.
-
-Remove duplicate keys."
-  (append b (--remove (assq (car it) b) a) nil))
 
 (defun frame-restore-desktop-restores-frame-p ()
   "Whether or not Deskop Save mode will restore frames."
@@ -148,13 +142,18 @@ Return the new `initial-frame-alist', or nil if reading failed."
   (when (and frame-restore-mode
              ;; Don't mess up with Desktop Save mode
              (not (frame-restore-desktop-restores-frame-p)))
-    (condition-case nil
-        (setq initial-frame-alist
-              (->> (f-read-text frame-restore-parameters-file 'utf-8)
-                read
-                (--filter (memq (car it) frame-restore-parameters))
-                (frame-restore--add-alists initial-frame-alist)))
-      (error nil))))
+    (condition-case err
+        (with-temp-buffer
+          (insert-file-contents frame-restore-parameters-file)
+          (goto-char (point-min))
+          (dolist (param (read (current-buffer)))
+            (when (memq (car param) frame-restore-parameters)
+              (setq initial-frame-alist
+                    (cons param
+                          (assq-delete-all (car param) initial-frame-alist))))))
+      (file-error nil)
+      (error (message "Unexpected signal %S while restoring frame: %S"
+                      (car err) (cdr err))))))
 
 ;; Add our hooks
 (unless noninteractive
