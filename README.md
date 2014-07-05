@@ -3,18 +3,15 @@ frame-restore.el
 
 Save and restore position and size of the Emacs frame.
 
-**Note:** Since [r113242][] the built-in Desktop Save mode will restore frames.
-If you are using a Emacs snapshot build later than this revision, you are
-**strongly** advised to use Desktop Save mode instead, via:
+**Note:** In Emacs 24.4 the built-in Desktop Save mode restores frames as well.
+If you are using Emacs 24.4, you are **strongly** advised to use Desktop Save
+mode instead, via:
 
 ```scheme
 (desktop-save-mode)
 ```
 
-Frame Restore mode will display a bold warning if enabled in an Emacs build
-whose Desktop Save mode can restore frames.
-
-[r113242]: http://bzr.savannah.gnu.org/lh/emacs/trunk/revision/113242
+Frame Restore mode will display a warning if enabled in Emacs 24.4.
 
 Installation
 ------------
