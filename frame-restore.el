@@ -6,7 +6,7 @@
 ;; URL: https://github.com/lunaryorn/frame-restore.el
 ;; Keywords:  frames convenience
 ;; Version: 0.5-cvs
-;; Package-Requires: ((dash "1.2") (f "0.11") (emacs "24.1"))
+;; Package-Requires: ((emacs "24.1"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -41,9 +41,6 @@
 ;; whose Desktop Save mode can restore frames.
 
 ;;; Code:
-
-(require 'dash)
-(require 'f)
 
 ;;;; Customization
 (defgroup frame-restore nil
