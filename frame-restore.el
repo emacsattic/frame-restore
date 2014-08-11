@@ -94,7 +94,8 @@ is saved from one session to another."
              (frame-restore-desktop-can-save-frames))
     ;; Recent Desktop Save Mode can restore frames, too, in a much superior way,
     ;; so we should advice our users to use Desktop Save Mode instead.
-    (warn "Frame restore is obsolete. Use `desktop-save-mode' instead")))
+    (lwarn 'frame-restore :warning
+           "Frame restore is obsolete. Use `desktop-save-mode' instead")))
 
 ;;;###autoload
 (define-obsolete-function-alias 'frame-restore 'frame-restore-mode "0.2")
