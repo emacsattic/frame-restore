@@ -1,6 +1,8 @@
 frame-restore.el
 ================
 
+[![Maintenance](https://img.shields.io/maintenance/yes/2014.svg)]()
+
 Save and restore position and size of the Emacs frame.
 
 **Note:** In Emacs 24.4 the built-in Desktop Save mode restores frames as well.
