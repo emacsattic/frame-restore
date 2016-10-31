@@ -18,7 +18,7 @@ Frame Restore mode will display a warning if enabled in Emacs 24.4.
 Installation
 ------------
 
-Install the ELPA package from [MELPA][] or [Marmalade][] with `M-x
+Install the ELPA package from [MELPA][] with `M-x
 package-install RET frame-restore`, and add the following to your `init.el`:
 
 ```scheme
@@ -48,5 +48,4 @@ this program.  If not, see http://www.gnu.org/licenses/.
 See [COPYING][] for details.
 
 [melpa]: http://melpa.milkbox.net
-[marmalade]: http://marmalade-repo.org/
 [copying]: https://github.com/lunaryorn/frame-restore.el/blob/master/COPYING
