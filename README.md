@@ -47,5 +47,5 @@ this program.  If not, see http://www.gnu.org/licenses/.
 
 See [COPYING][] for details.
 
-[melpa]: http://melpa.milkbox.net
+[melpa]: http://melpa.org
 [copying]: https://github.com/lunaryorn/frame-restore.el/blob/master/COPYING
